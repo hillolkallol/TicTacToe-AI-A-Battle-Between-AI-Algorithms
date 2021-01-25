@@ -1,5 +1,5 @@
 # TicTacToe AI - A Battle Between AI/ML Algorithms
-All I wanted to see the battle between AI/ML algorithms in the field of TicTacToe! Primary plan is to implement TicTacToe and some AI/ML algorithms like Minimax, Logistic Regression, CNN and see who they fight with each other. Shall we begin?
+All I wanted to see the battle between AI/ML algorithms in the field of TicTacToe! Primary plan is to implement TicTacToe and some AI/ML algorithms like Minimax, Logistic Regression, CNN and see how they fight with each other. Shall we begin?
 
 Wait! Check TIcTacToe AI - A Battle Between AI Algorithms.ipynb for full implementation and output: https://github.com/hillolkallol/TicTacToe-AI-A-Battle-Between-AI-Algorithms/blob/master/TicTacToe%20AI%20-%20A%20Battle%20Between%20AI%20Algorithms.ipynb
 
