@@ -449,6 +449,102 @@ Generating testing data based on all possible moves.
         return newRow
 ```
 
+## ConvNet Algorithm
+ConvNet is well known deep learning model. Decided to not to discuss about it here. Moving on..
+
+### Find Best Possible Move
+Iterate through all the possible moves, generate new test data and call ConvNet algorithm to find the best possible move based on the probability of winning.
+
+```python
+    def findBestCNNMove (self, player):
+        testX = []
+        positions = []
+        accuracy = []
+        
+        desireClass = 1 if player == 1 else 2
+        
+        for possibleMove in self.game.allPossibleNextMoves():
+            self.game.move(possibleMove[0], possibleMove[1], player)
+            positions.append (possibleMove)
+            test_loss, test_acc = self.convolutionalNeuralNetworkTesting ([np.asarray(self.generateTestX()).reshape(self.game.size, self.game.size, 1)], [desireClass])
+            accuracy.append (test_acc)
+            self.game.undo()
+        
+        maxProb = np.amax(accuracy)
+        moveIndex = np.where(accuracy == maxProb)[0][0]
+        
+        return positions[moveIndex]
+```
+
+### ConvNet Training
+Here is the architecture of my ConvNet-
+
+```
+Model: "sequential_1"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_4 (Conv2D)            (None, 3, 3, 32)          160       
+_________________________________________________________________
+max_pooling2d_3 (MaxPooling2 (None, 2, 2, 32)          0         
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 2, 2, 64)          8256      
+_________________________________________________________________
+max_pooling2d_4 (MaxPooling2 (None, 1, 1, 64)          0         
+_________________________________________________________________
+conv2d_6 (Conv2D)            (None, 1, 1, 32)          8224      
+_________________________________________________________________
+max_pooling2d_5 (MaxPooling2 (None, 1, 1, 32)          0         
+_________________________________________________________________
+conv2d_7 (Conv2D)            (None, 1, 1, 16)          2064      
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 16)                0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 32)                544       
+_________________________________________________________________
+dense_3 (Dense)              (None, 3)                 99        
+=================================================================
+Total params: 19,347
+Trainable params: 19,347
+Non-trainable params: 0
+_________________________________________________________________
+
+```
+
+Please note that, I haven't done any hyperparameter tuning, which is, I know, not a good practice. My all I wanted was making my hand dirty in a small board game so that I can use it later in large board.
+
+Train your CNN model with the new and old dataset. 
+
+```python
+    def convolutionalNeuralNetworkTraining (self):
+        self.model = models.Sequential()
+        self.model.add(layers.Conv2D(32, (2, 2), activation='relu', padding="same", input_shape=(self.game.size, self.game.size, 1)))
+        self.model.add(layers.MaxPooling2D((2, 2), padding="same")) # dim_ordering="th"
+        self.model.add(layers.Conv2D(64, (2, 2), activation='relu', padding="same"))
+        self.model.add(layers.MaxPooling2D((2, 2), padding="same"))
+        self.model.add(layers.Conv2D(32, (2, 2), activation='relu', padding="same"))
+        self.model.add(layers.MaxPooling2D((2, 2), padding="same"))
+        self.model.add(layers.Conv2D(16, (2, 2), activation='relu', padding="same"))
+        
+        self.model.add(layers.Flatten())
+        self.model.add(layers.Dense(32, activation='relu'))
+        self.model.add(layers.Dense(3, activation = "softmax"))
+        
+        self.model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+        
+        print(self.model.summary())
+        
+        history = self.model.fit(np.asarray(self.trainX), np.asarray(self.trainY), epochs=30, shuffle=True)
+```
+
+### ConvNet Testing
+Test your ConvNet model with all possible moves and find the best move based on the probability of winning.
+
+```python
+    def convolutionalNeuralNetworkTesting (self, test_images,  test_labels):
+        return self.model.evaluate(np.asarray(test_images),  np.asarray(test_labels), verbose=0)
+```
+
 ### Battle 1: Human Vs Minimax Algorithm!
 Below is the output of Human Vs Minimax!. Quess what? Minimax doesn't lose!
 
@@ -1087,4 +1183,81 @@ Match Draw!
 ==============================================================
 Minimax:  0 Logistic Regression:  0 Draw:  5
 ==============================================================
+```
+
+### Battle 4: Logistic Regression Vs ConvNet!
+Well, as expected, ConvNet didn't perform well, because it's a very small board to capture necessary patterns. ConvNet performed as same as a random move generator! That doesn't mean that Logistic Regression was very impressive. It won the battle, but the moves were like kid sometimes!
+
+Data has been gereated by placing some random moves against minimax algorithm.
+
+Below is the final battle between Logistic Regression Vs ConvNet!. 
+
+```python
+
+Battle number:  5
+==============================================================
+ConvNet:  0 Logistic Regression:  4 Draw:  0
+==============================================================
+It's Logistic Regression's turn!
+
+O |   |  
+- + - + -
+  |   |  
+- + - + -
+  |   |  
+
+It's ConvNet's turn!
+
+O | X |  
+- + - + -
+  |   |  
+- + - + -
+  |   |  
+
+It's Logistic Regression's turn!
+
+O | X |  
+- + - + -
+  | O |  
+- + - + -
+  |   |  
+
+It's ConvNet's turn!
+
+O | X | X
+- + - + -
+  | O |  
+- + - + -
+  |   |  
+
+It's Logistic Regression's turn!
+
+O | X | X
+- + - + -
+O | O |  
+- + - + -
+  |   |  
+
+It's ConvNet's turn!
+
+O | X | X
+- + - + -
+O | O | X
+- + - + -
+  |   |  
+
+It's Logistic Regression's turn!
+
+O | X | X
+- + - + -
+O | O | X
+- + - + -
+O |   |  
+
+It's over!
+Logistic Regression wins!
+==============================================================
+ConvNet:  0 Logistic Regression:  5 Draw:  0
+==============================================================
+
 ```
