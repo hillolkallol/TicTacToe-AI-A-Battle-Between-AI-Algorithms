@@ -1261,3 +1261,12 @@ ConvNet:  0 Logistic Regression:  5 Draw:  0
 ==============================================================
 
 ```
+### Future Work
+Actually there are tons of places for improvement. First, need to implement alpha-beta pruning to make minimax computationally efficient. Second, my ML models are getting overfitted. Some moves are not better than a random move! A few things need to be done here to improve ML models-
+
+* Experiment with the hyper-parameters to find good parameters for both logistic regression and ConvNet.
+* Need to come up with a better approach to generate data. Right now I am using minimax and random move to generate data, which is not good enough. Especially, it failed to generate all possible data. Thus, ML models has failed to learn properly.
+* Need more research and experiment on feature selection for input data.
+* Need to generate a big chunk of data.
+
+Just wanted to explore Minimax and ML algorithms in board games, so that's all for now! Will think about the improvement in the future.. Adiós Amigo!
